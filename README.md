@@ -4,7 +4,7 @@ A simple example that demonstrates how to use the function call feature of the O
 
 # Example
 
-[example.gif](https://github.com/Simoon-F/openai-function-calling-use-examples/example.gif)
+<a href="https://raw.githubusercontent.com/Simoon-F/openai-function-calling-use-examples/master/example.gif"><img src="https://raw.githubusercontent.com/Simoon-F/openai-function-calling-use-examples/master/example.gif"></a>
 
 ## Libraries that need to be installed
 
