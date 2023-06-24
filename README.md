@@ -2,7 +2,7 @@
 
 A simple example that demonstrates how to use the function call feature of the OpenAI API
 
-# Example
+## Example
 
 <a href="https://raw.githubusercontent.com/Simoon-F/openai-function-calling-use-examples/master/example.gif"><img src="https://raw.githubusercontent.com/Simoon-F/openai-function-calling-use-examples/master/example.gif"></a>
 
