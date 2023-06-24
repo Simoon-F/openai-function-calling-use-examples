@@ -40,6 +40,12 @@ class SkillsList:
                 st.markdown(
                     f"**{cast['date']}**  ：`dayweather`：{cast['dayweather']}，`nightweather`：{cast['nightweather']}, `daytemp`: {cast['daytemp']}, `nighttemp`：{cast['nighttemp']}")
 
+    @staticmethod
+    def send_email(to_email, title, body):
+        st.markdown(f"Recipient：{to_email}")
+        st.markdown(f"Email Title：{title}")
+        st.markdown(f"Email Body：{body}")
+
 
 def call_gpt(user_input):
     """
@@ -53,25 +59,48 @@ def call_gpt(user_input):
     """
     messages = [{"role": "user", "content": user_input}]
 
-    function = {
-        "name": "query_city_weather",
-        "description": "query weather temperature",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string",
-                    "description": "The city",
+    function = [
+        {
+            "name": "query_city_weather",
+            "description": "query weather temperature",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string",
+                        "description": "The city",
+                    },
                 },
+                "required": ["city"],
             },
-            "required": ["city"],
         },
-    }
+        {
+            "name": "send_email",
+            "description": "Send email information",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "to_email": {
+                        "type": "string",
+                        "description": "Recipient's email address"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "The title of the email"
+                    },
+                    "body": {
+                        "type": "string",
+                        "description": "The Body of the email"
+                    }
+                }
+            }
+        }
+    ]
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=messages,
-        functions=[function],
+        functions=function,
         function_call="auto",
     )
     return completion.choices[0].message
@@ -99,4 +128,4 @@ if __name__ == "__main__":
         method_args_dict = json.loads(method_args)
 
         method = getattr(skills_list_obj, method_name)
-        method(method_args_dict['city'])
+        method(**method_args_dict)
