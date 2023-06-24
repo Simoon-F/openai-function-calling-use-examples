@@ -2,6 +2,10 @@
 
 A simple example that demonstrates how to use the function call feature of the OpenAI API
 
+# Example
+
+[example.gif](https://github.com/Simoon-F/openai-function-calling-use-examples/example.gif)
+
 ## Libraries that need to be installed
 
 1. openai
@@ -28,5 +32,7 @@ $ cd openai-function-calling-use-exaples
 ```shell
 $ streamlit run main.py
 ```
+
+## Official Description
 
 [function-calling-and-other-api-updates](https://openai.com/blog/function-calling-and-other-api-updates)
