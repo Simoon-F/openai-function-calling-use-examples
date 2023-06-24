@@ -123,8 +123,6 @@ if __name__ == "__main__":
         method_name = reply_content_dict['function_call']['name']
         method_args = reply_content_dict['function_call']['arguments']
 
-        print(method_name, method_args)
-
         method_args_dict = json.loads(method_args)
 
         method = getattr(skills_list_obj, method_name)
