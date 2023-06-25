@@ -5,10 +5,11 @@ import requests as rq
 from dotenv import dotenv_values
 
 
-class SkillsList:
+class IntentsList:
     def __init__(self):
         """
         The api of Gaud Open Platform is used here.
+
         https://lbs.amap.com/api/webservice/guide/api/weatherinfo
         """
         self.weather_api_url = "https://restapi.amap.com/v3/weather/weatherInfo"
@@ -103,6 +104,7 @@ def call_gpt(user_input):
         functions=function,
         function_call="auto",
     )
+
     return completion.choices[0].message
 
 
@@ -112,9 +114,9 @@ if __name__ == "__main__":
     env = dotenv_values()
     openai.api_key = env['OPENAI_API_KEY']
 
-    skills_list_obj = SkillsList()
+    intents_list_obj = IntentsList()
 
-    prompt = st.text_input("Enter your command:")
+    prompt = st.text_input("Enter your prompt:")
 
     if prompt:
         reply_content = call_gpt(prompt)
@@ -125,5 +127,5 @@ if __name__ == "__main__":
 
         method_args_dict = json.loads(method_args)
 
-        method = getattr(skills_list_obj, method_name)
+        method = getattr(intents_list_obj, method_name)
         method(**method_args_dict)
