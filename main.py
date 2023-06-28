@@ -124,11 +124,15 @@ if __name__ == "__main__":
 
         reply_content_dict = reply_content.to_dict()
 
-        if (reply_content_dict['content']):
-            st.markdown(f"{reply_content_dict['content']}")
+        content = reply_content_dict['content']
+
+        if (content):
+            st.markdown(f"{content}")
         else:
-            method_name = reply_content_dict['function_call']['name']
-            method_args = reply_content_dict['function_call']['arguments']
+            function_call = reply_content_dict['function_call']
+
+            method_name = function_call['name']
+            method_args = function_call['arguments']
 
             method_args_dict = json.loads(method_args)
 
