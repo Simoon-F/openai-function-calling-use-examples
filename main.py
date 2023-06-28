@@ -124,13 +124,12 @@ if __name__ == "__main__":
 
         reply_content_dict = reply_content.to_dict()
 
-        content = reply_content_dict['content']
+        content, function_call = reply_content_dict['content'], reply_content_dict.get(
+            'function_call', {})
 
         if (content):
             st.markdown(f"{content}")
         else:
-            function_call = reply_content_dict['function_call']
-
             method_name = function_call['name']
             method_args = function_call['arguments']
 
