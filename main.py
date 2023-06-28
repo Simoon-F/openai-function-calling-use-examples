@@ -112,6 +112,7 @@ if __name__ == "__main__":
     st.title("Small assistant")
 
     env = dotenv_values()
+
     openai.api_key = env['OPENAI_API_KEY']
 
     intents_list_obj = IntentsList()
@@ -122,10 +123,14 @@ if __name__ == "__main__":
         reply_content = call_gpt(prompt)
 
         reply_content_dict = reply_content.to_dict()
-        method_name = reply_content_dict['function_call']['name']
-        method_args = reply_content_dict['function_call']['arguments']
 
-        method_args_dict = json.loads(method_args)
+        if (reply_content_dict['content']):
+            st.markdown(f"{reply_content_dict['content']}")
+        else:
+            method_name = reply_content_dict['function_call']['name']
+            method_args = reply_content_dict['function_call']['arguments']
 
-        method = getattr(intents_list_obj, method_name)
-        method(**method_args_dict)
+            method_args_dict = json.loads(method_args)
+
+            method = getattr(intents_list_obj, method_name)
+            method(**method_args_dict)
