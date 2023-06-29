@@ -50,7 +50,7 @@ class IntentsList:
 
 def call_gpt(user_input):
     """
-    Make a ChatCompletion API call to OpenAI GPT-3.5-turbo model.
+    Make a ChatCompletion API call to OpenAI GPT-3.5-turbo-0613 model.
 
     Args:
         user_input (str): The user's prompt or input text.
@@ -62,9 +62,9 @@ def call_gpt(user_input):
 
     function = [
         {
-            "name": "query_city_weather",
-            "description": "query weather temperature",
-            "parameters": {
+            "name": "query_city_weather",  # Function Name
+            "description": "query weather temperature",  # Meta information of function
+            "parameters": {  # parameters
                 "type": "object",
                 "properties": {
                     "city": {
@@ -93,15 +93,17 @@ def call_gpt(user_input):
                         "type": "string",
                         "description": "The Body of the email"
                     }
-                }
+                },
+                "required": ["to_email", "title", "body"],
             }
         }
     ]
 
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
+        model="gpt-3.5-turbo-0613",  # gpt-4-0613
         messages=messages,
-        functions=function,
+        functions=function,  # Receive a list of functions
+        # Indicates whether the OpenAI model should use the functions in the function list, set to auto, which means that the AI model should guess by itself.
         function_call="auto",
     )
 
