@@ -39,7 +39,7 @@ class IntentsList:
             st.markdown(f"{item['province'] + item['city']} is as follows：")
             for cast in item['casts']:
                 st.markdown(
-                    f"**{cast['date']}**  ：`dayweather`：{cast['dayweather']}，`nightweather`：{cast['nightweather']}, `daytemp`: {cast['daytemp']}, `nighttemp`：{cast['nighttemp']}")
+                    f"**{cast['date']}**  ：`dayweather`：{cast['dayweather']}, `nightweather`：{cast['nightweather']}, `daytemp`: {cast['daytemp']}, `nighttemp`：{cast['nighttemp']}")
 
     @staticmethod
     def send_email(to_email, title, body):
