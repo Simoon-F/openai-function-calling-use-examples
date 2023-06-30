@@ -28,7 +28,20 @@ $ cd openai-function-calling-use-exaples
 
 3. Create the `.env` file and add your api key
 
-4. Run Project
+4. Set up environment variables:
+
+    - Create a `.env` file in the root of the project.
+
+    - Add your Open AI API key to the .env file:
+
+    ```env
+    OPENAI_API_KEY=your Open AI api key
+    AMAP_API_KEY=your AMAP api key
+    ```
+    
+`TIPS:` If there is no AMAP_API_KEY, you can comment out the relevant code.
+
+5. Run Project
 ```shell
 $ streamlit run main.py
 ```
