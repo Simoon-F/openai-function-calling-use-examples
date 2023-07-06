@@ -1,8 +1,19 @@
+import time
 import streamlit as st
 import openai
 import json
 import requests as rq
+from streamlit_chat import message
 from dotenv import dotenv_values
+
+
+# initialization
+if 'generated' not in st.session_state:
+    st.session_state['generated'] = []
+if 'past' not in st.session_state:
+    st.session_state['past'] = []
+if 'messages' not in st.session_state:
+    st.session_state['messages'] = []
 
 
 class IntentsList:
@@ -35,6 +46,8 @@ class IntentsList:
 
         weather_data = response.json()
 
+        return json.dumps(weather_data)
+
         for item in weather_data['forecasts']:
             st.markdown(f"{item['province'] + item['city']} is as follows：")
             for cast in item['casts']:
@@ -43,9 +56,11 @@ class IntentsList:
 
     @staticmethod
     def send_email(to_email, title, body):
-        st.markdown(f"Recipient：{to_email}")
-        st.markdown(f"Email Title：{title}")
-        st.markdown(f"Email Body：{body}")
+        # st.markdown(f"Recipient：{to_email}")
+        # st.markdown(f"Email Title：{title}")
+        # st.markdown(f"Email Body：{body}")
+
+        return "Mail Sent，Recipient：{to_email}, Email Title: {title}, Email body: {body}"
 
 
 def call_gpt(user_input):
@@ -58,7 +73,10 @@ def call_gpt(user_input):
     Returns:
         str: The generated response from the API call.
     """
-    messages = [{"role": "user", "content": user_input}]
+    # messages = [{"role": "user", "content": user_input}]
+
+    st.session_state['messages'].append(
+        {"role": "user", "content": user_input})
 
     function = [
         {
@@ -101,7 +119,8 @@ def call_gpt(user_input):
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",  # gpt-4-0613
-        messages=messages,
+        messages=st.session_state['messages'],
+        # messages=messages,
         functions=function,  # Receive a list of functions
         # Indicates whether the OpenAI model should use the functions in the function list, set to auto, which means that the AI model should guess by itself.
         function_call="auto",
@@ -111,6 +130,7 @@ def call_gpt(user_input):
 
 
 if __name__ == "__main__":
+
     st.title("Small assistant")
 
     env = dotenv_values()
@@ -119,23 +139,57 @@ if __name__ == "__main__":
 
     intents_list_obj = IntentsList()
 
-    prompt = st.text_input("Enter your prompt:")
+    user_input = st.chat_input("Enter your prompt:")
 
-    if prompt:
-        reply_content = call_gpt(prompt)
+    if user_input:
+        assistant_output = call_gpt(user_input)
 
-        reply_content_dict = reply_content.to_dict()
+        st.session_state['past'].append(user_input)
 
-        content, function_call = reply_content_dict['content'], reply_content_dict.get(
-            'function_call', {})
+        function_call = assistant_output.get('function_call')
 
-        if (content):
-            st.markdown(f"{content}")
-        else:
-            method_name = function_call['name']
-            method_args = function_call['arguments']
+        if (function_call):
+
+            method_name, method_args = function_call.get(
+                'name'), function_call.get('arguments')
 
             method_args_dict = json.loads(method_args)
 
             method = getattr(intents_list_obj, method_name)
-            method(**method_args_dict)
+
+            method_response = method(**method_args_dict)
+
+            st.session_state['messages'].append(assistant_output)
+
+            st.session_state['messages'].append(
+                {"role": "function", "name": method_name,
+                 "content": method_response, })
+
+            time.sleep(21)
+
+            second_response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-0613",
+                messages=st.session_state['messages'],
+            )
+
+            st.session_state['generated'].append(
+                second_response.choices[0].message.get('content'))
+
+        else:
+            content = assistant_output.get('content')
+
+            st.session_state['generated'].append(
+                assistant_output.get('content'))
+
+            st.session_state['messages'].append(
+                {"role": "assistant", "content": content})
+
+    # History Chat Container
+    response_container = st.container()
+
+    if st.session_state['generated']:
+        with response_container:
+            for i in range(len(st.session_state['generated'])):
+                message(st.session_state["past"][i],
+                        is_user=True, key=str(i) + '_user')
+                message(st.session_state["generated"][i], key=str(i))
