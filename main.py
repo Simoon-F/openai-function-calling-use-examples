@@ -2,6 +2,7 @@ import time
 import streamlit as st
 import openai
 import json
+import function as f
 import requests as rq
 from streamlit_chat import message
 from dotenv import dotenv_values
@@ -62,6 +63,14 @@ class IntentsList:
 
         return "Mail Sent，Recipient：{to_email}, Email Title: {title}, Email body: {body}"
 
+    @staticmethod
+    def addition_function(left, right):
+        return left + right
+
+    @staticmethod
+    def substruction_function(left, right):
+        return left - right
+
 
 def call_gpt(user_input):
     """
@@ -78,63 +87,24 @@ def call_gpt(user_input):
     st.session_state['messages'].append(
         {"role": "user", "content": user_input})
 
-    function = [
-        {
-            "name": "query_city_weather",  # Function Name
-            "description": "query weather temperature",  # Meta information of function
-            "parameters": {  # parameters
-                "type": "object",
-                "properties": {
-                    "city": {
-                        "type": "string",
-                        "description": "The city",
-                    },
-                },
-                "required": ["city"],
-            },
-        },
-        {
-            "name": "send_email",
-            "description": "Send email information",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "to_email": {
-                        "type": "string",
-                        "description": "Recipient's email address"
-                    },
-                    "title": {
-                        "type": "string",
-                        "description": "The title of the email"
-                    },
-                    "body": {
-                        "type": "string",
-                        "description": "The Body of the email"
-                    }
-                },
-                "required": ["to_email", "title", "body"],
-            }
-        }
-    ]
-
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",  # gpt-4-0613
         messages=st.session_state['messages'],
         # messages=messages,
-        functions=function,  # Receive a list of functions
+        functions=f.function_list,  # Receive a list of functions
         # Indicates whether the OpenAI model should use the functions in the function list, set to auto, which means that the AI model should guess by itself.
         function_call="auto",
     )
+
+    print(completion)
 
     return completion.choices[0].message
 
 
 if __name__ == "__main__":
-
     st.title("Small assistant")
 
     env = dotenv_values()
-
     openai.api_key = env['OPENAI_API_KEY']
 
     intents_list_obj = IntentsList()
@@ -154,18 +124,20 @@ if __name__ == "__main__":
                 'name'), function_call.get('arguments')
 
             method_args_dict = json.loads(method_args)
-
             method = getattr(intents_list_obj, method_name)
+            method_result = method(**method_args_dict)
 
-            method_response = method(**method_args_dict)
-
+            # Append output to messages
             st.session_state['messages'].append(assistant_output)
 
+            # Int to string
+            if type(method_result) == int:
+                method_result = str(method_result)
+
+            # Append method result to messages
             st.session_state['messages'].append(
                 {"role": "function", "name": method_name,
-                 "content": method_response, })
-
-            time.sleep(21)
+                 "content": method_result, })
 
             second_response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo-0613",
@@ -181,12 +153,14 @@ if __name__ == "__main__":
             st.session_state['generated'].append(
                 assistant_output.get('content'))
 
+            # Append content to messages
             st.session_state['messages'].append(
                 {"role": "assistant", "content": content})
 
-    # History Chat Container
+    # History chat container
     response_container = st.container()
 
+    # Render session
     if st.session_state['generated']:
         with response_container:
             for i in range(len(st.session_state['generated'])):
