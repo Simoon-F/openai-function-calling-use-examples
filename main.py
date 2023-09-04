@@ -73,31 +73,26 @@ class IntentsList:
 
 
 def call_gpt(user_input):
-    """
-    Make a ChatCompletion API call to OpenAI GPT-3.5-turbo-0613 model.
-
-    Args:
-        user_input (str): The user's prompt or input text.
-
-    Returns:
-        str: The generated response from the API call.
-    """
-    # messages = [{"role": "user", "content": user_input}]
-
+    # 将用户输入添加到会话状态中的消息列表中
     st.session_state['messages'].append(
         {"role": "user", "content": user_input})
 
+    # 使用OpenAI的GPT-3.5模型进行聊天补全
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",  # gpt-4-0613
+        model="gpt-3.5-turbo-0613",
+        # 将会话状态中的消息列表传递给聊天补全模型
         messages=st.session_state['messages'],
         # messages=messages,
-        functions=f.function_list,  # Receive a list of functions
-        # Indicates whether the OpenAI model should use the functions in the function list, set to auto, which means that the AI model should guess by itself.
+        # 定义可调用的函数列表
+        functions=f.function_list,
+        # 设置函数调用方式为自动调用
         function_call="auto",
     )
 
+    # 打印补全结果
     print(completion)
 
+    # 返回补全结果中的第一个选项的消息
     return completion.choices[0].message
 
 
